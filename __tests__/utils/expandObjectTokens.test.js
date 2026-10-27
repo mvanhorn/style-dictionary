@@ -720,6 +720,37 @@ describe('utils', () => {
           });
         });
 
+        it('should keep DTCG dimension and color values intact when expanding a border', () => {
+          const input = {
+            border: {
+              $type: 'border',
+              $value: {
+                width: { value: 2, unit: 'px' },
+                color: { colorSpace: 'srgb', components: [0, 0, 0] },
+              },
+            },
+          };
+          const expanded = expandTokens(
+            convertTokenData(input, { output: 'map', usesDtcg: true }),
+            { expand: true, usesDtcg: true },
+          );
+
+          expect(convertTokenData(expanded, { output: 'object', usesDtcg: true })).to.eql({
+            border: {
+              width: {
+                key: '{border.width}',
+                $type: 'dimension',
+                $value: { value: 2, unit: 'px' },
+              },
+              color: {
+                key: '{border.color}',
+                $type: 'color',
+                $value: { colorSpace: 'srgb', components: [0, 0, 0] },
+              },
+            },
+          });
+        });
+
         it('should throw an error when include and exclude are combined', () => {
           const badFn = () =>
             expandTokens(convertTokenData(borderInput, { output: 'map' }), {

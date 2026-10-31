@@ -751,6 +751,36 @@ describe('utils', () => {
           });
         });
 
+        it('should recurse into a property only when its type is a composite type', () => {
+          const input = {
+            transition: {
+              $type: 'transition',
+              $value: {
+                delay: { value: 100, unit: 'ms' },
+                timingFunction: [0.5, 0, 1, 1],
+                outline: { width: { value: 1, unit: 'px' } },
+              },
+            },
+          };
+          const expand = (typesMap) =>
+            convertTokenData(
+              expandTokens(convertTokenData(input, { output: 'map', usesDtcg: true }), {
+                expand: { typesMap },
+                usesDtcg: true,
+              }),
+              { output: 'object', usesDtcg: true },
+            );
+
+          expect(expand({}).transition.delay.$value).to.eql({ value: 100, unit: 'ms' });
+          expect(expand({}).transition.outline.$value).to.eql({
+            width: { value: 1, unit: 'px' },
+          });
+          // a typesMap entry makes a custom type a composite, which is then expanded too
+          expect(
+            expand({ outline: { width: 'dimension' } }).transition.outline.width.$value,
+          ).to.eql({ value: 1, unit: 'px' });
+        });
+
         it('should throw an error when include and exclude are combined', () => {
           const badFn = () =>
             expandTokens(convertTokenData(borderInput, { output: 'map' }), {

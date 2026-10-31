@@ -259,7 +259,7 @@ The value of expand can be multiple things:
   - Containing just a `typesMap`, which is also equivalent of passing `true`, except you're also passing the `typesMap`
   - Also containing an `include` or `exclude` property which can be either an array of composite types or an `ExpandFilter` function, to conditionally expand or negate expand of individual tokens
 
-With `expand: true`, a composite is still expanded into one token per property. Expansion stops at DTCG dimension and duration values (`{value, unit}`) and DTCG color values (`{colorSpace, components}`, with optional `alpha` and `hex`), so those objects stay intact on the expanded token. A `{value, unit}` object whose mapped type is `number`, such as typography `lineHeight`, is typed as `dimension`.
+With `expand: true`, a composite is still expanded into one token per property. Expansion only recurses into a property whose type is a composite type, including any you add through `typesMap`, so object values of other types, such as DTCG dimensions, durations and colors, stay intact on the expanded token. A `{value, unit}` object whose mapped type is `number`, such as typography `lineHeight`, is typed as `dimension`.
 
 #### Global vs Platform
 

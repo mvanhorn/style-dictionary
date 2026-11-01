@@ -781,6 +781,32 @@ describe('utils', () => {
           ).to.eql({ value: 1, unit: 'px' });
         });
 
+        it('should not expand a color object when typesMap maps a type to a string', () => {
+          const input = {
+            border: {
+              $type: 'border',
+              $value: {
+                width: { value: 1, unit: 'px' },
+                style: 'solid',
+                color: { colorSpace: 'srgb', components: [0, 0, 0] },
+              },
+            },
+          };
+          const expand = (expandConfig) =>
+            convertTokenData(
+              expandTokens(convertTokenData(input, { output: 'map', usesDtcg: true }), {
+                expand: expandConfig,
+                usesDtcg: true,
+              }),
+              { output: 'object', usesDtcg: true },
+            );
+
+          const expected = { colorSpace: 'srgb', components: [0, 0, 0] };
+          expect(expand(true).border.color.$value).to.eql(expected);
+          // a string mapping renames a subtype, it does not define a composite type
+          expect(expand({ typesMap: { color: 'color' } }).border.color.$value).to.eql(expected);
+        });
+
         it('should throw an error when include and exclude are combined', () => {
           const badFn = () =>
             expandTokens(convertTokenData(borderInput, { output: 'map' }), {
